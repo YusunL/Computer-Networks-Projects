@@ -29,14 +29,17 @@ struct cmp {
 };
 
 // 한 라우터의 테이블 구하는 함수 - 다익스트라
+// using Dijkstra algorithm to get a table of router
 void linkstate(vector< vector<int> > &route_tbl, vector< vector<int> > ntwrk, int curr_node, int N) {
     //테이블 초기화
+    // initializing table
     for (int i = 0; i < N; i++) route_tbl[i][0] = route_tbl[i][3] = i;
     route_tbl[curr_node][1] = curr_node;
     route_tbl[curr_node][2] = 0;
     //route_tbl[curr][0: idx, 1: next, 2: cost ,3: parent]
 
     //다익스트라
+    //Dijkstra
     priority_queue < node_pq, vector<node_pq>, cmp > pq;
     node_pq pq_tmp;
     pq_tmp.idx = curr_node;
@@ -47,7 +50,7 @@ void linkstate(vector< vector<int> > &route_tbl, vector< vector<int> > ntwrk, in
     while (pq.size() != 0) {
         pq_tmp = pq.top();
         pq.pop();
-        if (route_tbl[pq_tmp.idx][2] >= pq_tmp.cst) { //  = 없애도 됌?    
+        if (route_tbl[pq_tmp.idx][2] >= pq_tmp.cst) {   
             if(route_tbl[pq_tmp.idx][2] > pq_tmp.cst || route_tbl[pq_tmp.idx][3] > pq_tmp.prt){
                 route_tbl[pq_tmp.idx][1] = pq_tmp.nxt;
                 route_tbl[pq_tmp.idx][2] = pq_tmp.cst;
@@ -59,7 +62,8 @@ void linkstate(vector< vector<int> > &route_tbl, vector< vector<int> > ntwrk, in
                     adj_node.idx = i;
                     adj_node.cst = pq_tmp.cst + ntwrk[pq_tmp.idx][i];
                     adj_node.prt = pq_tmp.idx;
-                    if (pq_tmp.idx == curr_node) {// 인접한 애만 next에 넣으려고
+                    if (pq_tmp.idx == curr_node) {
+                        // only getting neighbor
                         adj_node.nxt = i;
                     }
                     else {
@@ -74,7 +78,7 @@ void linkstate(vector< vector<int> > &route_tbl, vector< vector<int> > ntwrk, in
 
 
 int main(int argc, char* argv[]) {
-    //인자 수 check
+    //checking number of arguments
     if (argc != 4) {
         fprintf(stderr, "usage: linkstate topologyfile messagesfile changesfile\n");
         exit(1);
@@ -135,6 +139,7 @@ int main(int argc, char* argv[]) {
     fclose(f);
 
     // 라우팅 프로토콜
+    // routing protocol
     vector< vector< vector<int> > > route_tbl;    
     f =  fopen("output_ls.txt", "w");
     while(true){
@@ -143,6 +148,7 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < N; i++) linkstate(route_tbl[i], ntwrk, i, N);
         
         // 라우팅 테이블 출력
+        // print routing table
          for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
                 if(route_tbl[i][j][2] != INF){
@@ -153,6 +159,7 @@ int main(int argc, char* argv[]) {
         }
 
         //메세지 전송
+        //sending msg
         int msgs_num = msgs.size();
         for(int i = 0; i < msgs_num; i++){
             int snd = msgs[i].src, rec = msgs[i].dest;
@@ -173,6 +180,7 @@ int main(int argc, char* argv[]) {
         fprintf(f,"\n");
 
         //네트워크 변동
+        // chaing in network
         if(chngs.size() == 0){
             fclose(f);
             printf("Complete. Output file written to output_ls.txt.\n");
@@ -181,7 +189,8 @@ int main(int argc, char* argv[]) {
         else{
             vector<int>tmp = chngs.front();
             chngs.pop();
-            ntwrk[tmp[0]][tmp[1]] = ntwrk[tmp[1]][tmp[0]] = tmp[2]; // 네트워크 수정
+            ntwrk[tmp[0]][tmp[1]] = ntwrk[tmp[1]][tmp[0]] = tmp[2]; 
+            // modify network
         }
     }
 

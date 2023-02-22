@@ -73,7 +73,7 @@ string decode_CRC(string code, string gntr, int d_size) {
 }
 
 int main(int argc, char* argv[]){
-     //인자 수 check
+     //checking number of arguments
     if(argc != 6){
         fprintf(stderr, "usage: ./crc_decoder input_file output_file result_file generator dataword_size\n");
 		exit(1);
@@ -107,6 +107,7 @@ int main(int argc, char* argv[]){
     }
 
     // 파일 디코딩 및 출력
+    // decoding and printing file
     char* buffer = (char*) malloc (sizeof(char));
     fread(buffer,1,1,fin);
     int padding = (int)buffer[0];

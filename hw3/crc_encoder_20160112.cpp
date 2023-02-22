@@ -49,7 +49,7 @@ void str_to_bin(string str, char &bin ){
 }
 
 int main(int argc, char* argv[]){
-     //인자 수 check
+     //checking number of arguments
     if(argc != 5){
         fprintf(stderr, "usage: ./crc_encoder input_file output_file generator dataword_size\n");
 		exit(1);
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]){
     }
 
     // 파일 인코딩 및 출력
+    // incoding and prining file
     char* buffer = (char*) malloc (sizeof(char));
     string total_code =""; 
     while (fread(buffer,1,1,fin) != 0) {        
