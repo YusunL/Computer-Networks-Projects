@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
 
 	
 	// 인자 몇개인지, 변수 "http://"로 시작하는지 check
+	// checking for how many arguments and if argv[1] starts with "http://"
 	if (argc != 2 || strncmp(argv[1], "http://", 7) != 0) {
 		fprintf(stderr, "usage: http_client http://hostname[:port][/path/to/file]\n");
 		exit(1);
@@ -65,8 +66,9 @@ int main(int argc, char* argv[])
 	hints.ai_socktype = SOCK_STREAM;
 
 	// TCP 연결 요청
+	// TCP connctrion request
 	if ((rv = getaddrinfo(hostname, port, &hints, &servinfo)) != 0) {
-		// IP address 얻지 못했을 때
+		// If there were no IP address 
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		return 1;
 	}
@@ -79,13 +81,13 @@ int main(int argc, char* argv[])
     }
 
 	if (connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen) == -1) {
-		// 서버와 연결 실패
+		// unable to connect to server
 		close(sockfd);
 		perror("connect");
 		exit(1);
 	}
 
-	// IP address 저장
+	// saving IP address 
 	inet_ntop(servinfo->ai_family, &((struct sockaddr_in*)servinfo->ai_addr)->sin_addr, s, sizeof s);
 
 	strcpy(buf, "GET ");
@@ -105,10 +107,10 @@ int main(int argc, char* argv[])
 	}
 	
 	int recv_len;
-	// http response 저장
+	// saving http response 
 	recv_len = recv(sockfd, buf, MAXDATASIZE, 0);
 
-	// 첫번째 줄 출력
+	// printout first sentence
 	for(int i=0;  ; i++){
 		if(buf[i] == 13&& buf[i+1] == 10){
 			printf("\n");
@@ -117,11 +119,11 @@ int main(int argc, char* argv[])
 		printf("%c", buf[i]);
 	}
 	
-	// out 파일
+	// out file
 	//ofstream out("20160112.txt");
 	ofstream out("20160112.out");
 
-	// content_length 찾기 + data 출력
+	// finding content_length + print data 
 	int content_len = 0;
 	for(int i=0; i<recv_len;i++ ){
 		char * tmp = buf+i;
@@ -140,7 +142,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// data 너무 클 경우
+	// if the data is too big
 	/*
 	while( (recv_len = recv(sockfd, buf, MAXDATASIZE, MSG_DONTWAIT)) > 0) { 
 		for(int i = 0; i<recv_len;i++) out<< buf[i];

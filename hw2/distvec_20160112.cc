@@ -15,6 +15,7 @@ typedef struct msg_ {
 }msg;
 
 // 모든 라우터의 테이블 구하는 함수
+// finding all the router's table
 void distvec(vector< vector< vector<int> > > &route_tbl, vector< vector<int> > ntwrk, int N, int curr_node) {
     //route_tbl[curr][0: idx, 1: next, 2: cost]
 
@@ -23,13 +24,13 @@ void distvec(vector< vector< vector<int> > > &route_tbl, vector< vector<int> > n
     q.push(curr_node);
     
     while (q.size() != 0) {
-        int tmp = q.front();// tmp = 현재 변동된 노드
+        int tmp = q.front();// tmp = currently changed node
         q.pop();
-        for (int i = 0; i < N; i++) { // i = 변동된 노드의 주변 neighbor         
+        for (int i = 0; i < N; i++) { // i = neighbor of tmp         
             int cost_to_this_node = ntwrk[tmp][i];
-            if (cost_to_this_node != 0 && cost_to_this_node != -999) {//neighbor만
+            if (cost_to_this_node != 0 && cost_to_this_node != -999) {// for only neighbor of tmp
                 bool change = false;
-                for (int j = 0; j < N; j++) { //  i 에서 갈 수 있는 애들
+                for (int j = 0; j < N; j++) { // j = neighbor of i
                     if (route_tbl[tmp][j][2] + cost_to_this_node < route_tbl[i][j][2]) {
                         change = true;
                         route_tbl[i][j][1] = tmp;
@@ -51,14 +52,14 @@ void distvec(vector< vector< vector<int> > > &route_tbl, vector< vector<int> > n
                         }
                     }
                 }
-                if (change) q.push(i); //라우터 테이블 값 변동 있을 시에만 neighbor에 전송
+                if (change) q.push(i); //only if there is change at router table, send to neighbor
             }
         }
     }
 }
 
 int main(int argc, char* argv[]){
-    //인자 수 check
+    // checking number of arguments
     if(argc != 4){
         fprintf(stderr, "usage: distvec topologyfile messagesfile changesfile\n");
 		exit(1);
@@ -119,6 +120,7 @@ int main(int argc, char* argv[]){
     fclose(f);
 
     //라우팅 테이블 초기화
+    //initializing routing table
     vector< vector< vector<int> > > route_tbl;
     route_tbl.resize(N, vector< vector<int> >(N, vector<int>(3, INF)));
     for (int j = 0; j < N; j++) {
@@ -132,10 +134,11 @@ int main(int argc, char* argv[]){
     }
     
     //라우팅 프로토콜
+    //routing protocols
     f =  fopen("output_dv.txt", "w");
     for(int i = 0; i<N;i++) distvec(route_tbl, ntwrk, N, i);
     while(true){
-        // 라우팅 테이블 출력
+        // print routing table
          for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
                  if(route_tbl[i][j][2] != INF){
@@ -146,6 +149,7 @@ int main(int argc, char* argv[]){
         }
 
         //메세지 전송
+        //sending msg
         int msgs_num = msgs.size();
         for(int i = 0; i < msgs_num; i++){
             int snd = msgs[i].src, rec = msgs[i].dest;
@@ -166,6 +170,7 @@ int main(int argc, char* argv[]){
         fprintf(f,"\n");
 
         //네트워크 변동
+        //change in network
         if(chngs.size() == 0){
             fclose(f);
             printf("Complete. Output file written to output_dv.txt.\n");
